@@ -13,14 +13,19 @@ on:
         default: ''
 
 env: {}
+permissions: {}
   
 jobs:
   renovate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Set environment variables
+        env:
+          ENVIRONMENT_INPUT: ${{ inputs.environment }}
         run: |
-          IFS=',' read -ra vars <<< "${{ inputs.environment }}"
+          IFS=',' read -ra vars <<< "$ENVIRONMENT_INPUT"
           for var in "${vars[@]}"; do
             [ -n "$var" ] || continue
             key=${var%%=*}
@@ -28,21 +33,22 @@ jobs:
 
             case "$key" in
               *TOKEN*|*SECRET*|*PASSWORD*|*PRIVATE*|*KEY*)
-                echo "::add-mask::$value"
+                echo "::warning::Skipping sensitive variable '$key' from inputs.environment; configure it as a GitHub repository secret instead."
+                ;;
+              *)
+                printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
                 ;;
             esac
-
-            printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
           done
       - name: Checkout repository
         run: |
-          : "${RENOVATE_TOKEN:?RENOVATE_TOKEN is required}"
           repo_url="${{ inputs.repository }}"
-          git clone "https://oauth2:${RENOVATE_TOKEN}@${repo_url#https://}" renovate-repo
-      - name: Move Renovate config
-        run: |
-          mv renovate-repo/renovate.json .
+          git clone "https://oauth2:${{ secrets.RENOVATE_TOKEN }}@${repo_url#https://}" .
+      - name: Checkout local action
+        uses: actions/checkout@v7
+        with:
+          path: ./github-repo
       - name: Run Renovate
-        uses: ./actions/renovate
+        uses: ./github-repo/actions/renovate
         with:
           github-token: ${{ github.token }}
