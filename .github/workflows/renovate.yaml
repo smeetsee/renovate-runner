@@ -52,3 +52,5 @@ jobs:
         uses: ./github-repo/actions/renovate
         with:
           github-token: ${{ github.token }}
+        env:
+          RENOVATE_TOKEN: ${{ secrets.RENOVATE_TOKEN }}
