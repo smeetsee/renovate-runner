@@ -35,8 +35,10 @@ jobs:
 
             printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
           done
+      - name: Move Renovate config
+        run: |
+          mv renovate-repo/renovate.json .
       - name: Run Renovate
         uses: ./actions/renovate
-        working-directory: renovate-repo
         with:
           github-token: ${{ github.token }}
