@@ -8,7 +8,7 @@ on:
         required: true
         default: ''
       environment:
-        description: 'Comma-separated list of environment variables to set, written as KEY=VALUE pairs'
+        description: 'JSON object of environment variables to set, written as key/value pairs'
         required: false
         default: ''
 
@@ -25,21 +25,21 @@ jobs:
         env:
           ENVIRONMENT_INPUT: ${{ inputs.environment }}
         run: |
-          IFS=',' read -ra vars <<< "$ENVIRONMENT_INPUT"
-          for var in "${vars[@]}"; do
-            [ -n "$var" ] || continue
-            key=${var%%=*}
-            value=${var#*=}
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json
+          import os
+          import re
 
-            case "$key" in
-              *TOKEN*|*SECRET*|*PASSWORD*|*PRIVATE*|*KEY*)
-                echo "::warning::Skipping sensitive variable '$key' from inputs.environment; configure it as a GitHub repository secret instead."
-                ;;
-              *)
-                printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
-                ;;
-            esac
-          done
+          environment_input = os.environ["ENVIRONMENT_INPUT"]
+          environment = json.loads(environment_input) if environment_input else {}
+          skip_pattern = re.compile(r'^RENOVATE_.*(?:TOKEN|SECRET|PASSWORD|PRIVATE|KEY).*$')
+
+          for key, value in environment.items():
+              if key == 'RENOVATE_GITHUB_COM_TOKEN' or skip_pattern.match(key):
+                  print(f"::warning::Skipping sensitive variable '{key}' from inputs.environment; configure it as a GitHub repository secret instead.")
+                  continue
+              print(f"{key}={value}")
+          PY
       - name: Checkout repository
         run: |
           repo_url="${{ inputs.repository }}"
