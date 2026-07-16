@@ -29,12 +29,18 @@ jobs:
           import json
           import os
           import re
+          from pathlib import Path
 
           environment_input = os.environ["ENVIRONMENT_INPUT"]
           environment = json.loads(environment_input) if environment_input else {}
           skip_pattern = re.compile(r'^RENOVATE_.*(?:TOKEN|SECRET|PASSWORD|PRIVATE|KEY).*$')
+          base_dir = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "renovate"
+          base_dir.mkdir(parents=True, exist_ok=True)
 
           for key, value in environment.items():
+              if key == 'RENOVATE_BASE_DIR':
+                  print(f"RENOVATE_BASE_DIR={base_dir}")
+                  continue
               if key == 'RENOVATE_GITHUB_COM_TOKEN' or skip_pattern.match(key):
                   print(f"::warning::Skipping sensitive variable '{key}' from inputs.environment; configure it as a GitHub repository secret instead.")
                   continue
