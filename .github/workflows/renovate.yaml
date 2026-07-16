@@ -1,0 +1,42 @@
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'Repository URL, with credentials'
+        required: true
+        default: ''
+      environment:
+        description: 'Comma-separated list of environment variables to set, written as KEY=VALUE pairs'
+        required: false
+        default: ''
+
+env: {}
+  
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        run: |
+          git clone ${{ inputs.repository }} renovate-repo
+      - name: Set environment variables
+        run: |
+          IFS=',' read -ra vars <<< "${{ inputs.environment }}"
+          for var in "${vars[@]}"; do
+            [ -n "$var" ] || continue
+            key=${var%%=*}
+            value=${var#*=}
+
+            case "$key" in
+              *TOKEN*|*SECRET*|*PASSWORD*|*PRIVATE*|*KEY*)
+                echo "::add-mask::$value"
+                ;;
+            esac
+
+            printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
+          done
+      - name: Run Renovate
+        uses: ./actions/renovate
+        working-directory: renovate-repo
+        with:
+          github-token: ${{ github.token }}

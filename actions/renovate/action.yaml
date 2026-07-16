@@ -1,0 +1,17 @@
+name: Renovate
+author: Xander Smeets
+description: 
+  This action runs Renovate through a container image.
+inputs:
+  github-token:
+    description: 'GitHub token to use for authentication'
+    required: true
+runs:
+  using: 'docker'
+  image: 'ghcr.io/renovatebot/renovate:43'
+  env:
+    RENOVATE_GITHUB_COM_TOKEN: ${{ inputs.github-token }}
+    RENOVATE_PLATFORM: gitlab
+  entrypoint: renovate
+  args:
+    - $RENOVATE_EXTRA_FLAGS
