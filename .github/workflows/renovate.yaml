@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       repository:
-        description: 'Repository URL, with credentials'
+        description: 'Repository URL, without credentials'
         required: true
         default: ''
       environment:
@@ -18,9 +18,6 @@ jobs:
   renovate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        run: |
-          git clone ${{ inputs.repository }} renovate-repo
       - name: Set environment variables
         run: |
           IFS=',' read -ra vars <<< "${{ inputs.environment }}"
@@ -37,6 +34,11 @@ jobs:
 
             printf '%s=%s\n' "$key" "$value" >> "$GITHUB_ENV"
           done
+      - name: Checkout repository
+        run: |
+          : "${RENOVATE_TOKEN:?RENOVATE_TOKEN is required}"
+          repo_url="${{ inputs.repository }}"
+          git clone "https://oauth2:${RENOVATE_TOKEN}@${repo_url#https://}" renovate-repo
       - name: Move Renovate config
         run: |
           mv renovate-repo/renovate.json .
