@@ -15,6 +15,6 @@
     }
   ],
   "github-actions": {
-    "managerFilePatterns": ["^/.*/action\\.ya?ml$/"]
+    "managerFilePatterns": ["^/.*/action\\.ya?ml$"]
   }
 }
