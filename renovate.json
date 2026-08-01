@@ -1,6 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
+  "enabledManagers": ["github-actions"],
+  "packageRules": [
+    {
+      "description": "Disable all updates by default",
+      "matchPackageNames": ["/.*/"],
+      "enabled": false
+    },
+    {
+      "description": "Enable only GitHub Actions container images (docker datasource)",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["docker"],
+      "enabled": true
+    }
   ]
 }
