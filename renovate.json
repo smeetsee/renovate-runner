@@ -13,5 +13,8 @@
       "matchDatasources": ["docker"],
       "enabled": true
     }
-  ]
+  ],
+  "github-actions": {
+    "managerFilePatterns": ["^/.*/action\\.ya?ml$/"]
+  }
 }
