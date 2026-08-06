@@ -51,12 +51,8 @@ jobs:
         run: |
           repo_url="${{ inputs.repository }}"
           git clone "https://oauth2:${{ secrets.RENOVATE_TOKEN }}@${repo_url#https://}" .
-      - name: Checkout local action
-        uses: actions/checkout@v7
-        with:
-          path: ./github-repo
       - name: Run Renovate
-        uses: ./github-repo/actions/renovate
+        uses: $/github-repo/actions/renovate
         with:
           github-token: ${{ github.token }}
         env:
