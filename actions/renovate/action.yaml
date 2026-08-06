@@ -8,7 +8,7 @@ inputs:
     required: true
 runs:
   using: 'docker'
-  image: 'ghcr.io/renovatebot/renovate:43'
+  image: 'docker://ghcr.io/renovatebot/renovate:43'
   env:
     RENOVATE_GITHUB_COM_TOKEN: ${{ inputs.github-token }}
     RENOVATE_PLATFORM: gitlab
