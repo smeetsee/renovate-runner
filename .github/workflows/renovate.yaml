@@ -52,7 +52,7 @@ jobs:
           repo_url="${{ inputs.repository }}"
           git clone "https://oauth2:${{ secrets.RENOVATE_TOKEN }}@${repo_url#https://}" .
       - name: Run Renovate
-        uses: $/github-repo/actions/renovate
+        uses: $/actions/renovate
         with:
           github-token: ${{ github.token }}
         env:
