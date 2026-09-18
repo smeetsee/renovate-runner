@@ -12,6 +12,10 @@ on:
         required: false
         default: ''
 
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+
 env: {}
 permissions: {}
   
